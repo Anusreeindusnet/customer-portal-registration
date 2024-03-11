@@ -21,18 +21,18 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerService {
-    @Value("${base.url}")
+public class CustomerService { // Making Http requests to an external api to fetch
+    @Value("${base.url}")// Base url of external Api
     private String url;
 
     private final CustomerRepository customerRepository;
-    private RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate = new RestTemplate(); // to make http request to the external api
 
-    public List<CustomerDto> getAllCustomers() {
+    public List<CustomerDto> getAllCustomers() { // Fetching all customers converteding to customer dto objects
         List<Customer> customers = customerRepository.findAll();
         return customers.stream()
-                .map(Customer::toCustomerDto)
-                .collect(Collectors.toList());
+                .map(Customer::toCustomerDto) // Convert customer object to customerdto object
+                .collect(Collectors.toList()); // List of Customer using collect method
     }
 
     public List<TodoDto> fetchAll() {
@@ -47,7 +47,7 @@ public class CustomerService {
                     new ParameterizedTypeReference<List<TodoDto>>() {
                     });
 
-        } catch (HttpClientErrorException ex) {
+        } catch (HttpClientErrorException ex) { //If not found returns 404 status code and throw error message
             if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new TodoNotFoundException("Wrong Path ", "Please Check the url Before Typing",
                         HttpStatus.BAD_REQUEST);
@@ -56,7 +56,7 @@ public class CustomerService {
         return responseEntity.getBody();
     }
     public TodoDto fetchById(Long todoId) {
-        String apiUrl = url + "/" + todoId;
+        String apiUrl = url + "/" + todoId; //Concatenating url with parameter
 
         ResponseEntity<TodoDto> responseEntity = null;
 

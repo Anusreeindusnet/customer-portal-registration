@@ -28,22 +28,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-
+//Configure the security filters and rules
         httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
         httpSecurity
-                .authorizeHttpRequests(request -> request
+                .authorizeHttpRequests(request -> request     // Authorize specific HTTP request based on url patterns
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/customer/**").hasAnyAuthority("USER")
-                        .anyRequest().authenticated())
-                //Set session policy=STATELESS
+                        .anyRequest().authenticated())//All other requests require authentication
+                //Set session policy=STATELESS(No session will be created or used)
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/auth/**",  "/admin/**", "/user/**"))
-                .authenticationProvider(authenticationProvider())
+                .authenticationProvider(authenticationProvider())// Protection by ignoring specific request patterns
 
-               // Add Jwt Authentication Filter
+               // Add Jwt Authentication Filter before the usernamepassworduthentication filter to handle jwt authentication
                 .addFilterBefore(jwtAuthFIlter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
@@ -51,7 +51,7 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration(); // set allow Credentials property
         configuration.setAllowCredentials(true);
         configuration.addAllowedOrigin("http://localhost:8080");
         configuration.addAllowedHeader("*");
@@ -65,7 +65,7 @@ public class SecurityConfig {
         return source;
     }
 
-    @Bean
+    @Bean // Authentication users based on their credentials
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(ourUserDetailsService);
